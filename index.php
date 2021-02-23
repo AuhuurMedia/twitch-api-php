@@ -15,7 +15,7 @@ define('ACCESSTOKEN', getAccessToken());
 # or abort if it's not included
 # So make sure to add your functions to the array if you add new ones
 
-$validFunctions = array("info","topclips");
+$validFunctions = array("info","topclips","user");
 $functName = $_REQUEST['f'];
 
 if(in_array($functName,$validFunctions))
@@ -100,6 +100,32 @@ if (curl_errno($ch)) {
 }
 curl_close($ch);
 echo $result ; 
+}
+function user()
+{
+$ch = curl_init();
+$channelname = CHANNELNAME;
+$clientid = CLIENTID;
+
+curl_setopt($ch, CURLOPT_URL, "https://api.twitch.tv/kraken/users?login={$channelname}");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+$headers = array();
+$headers[] = "Client-Id: {$clientid}";
+$headers[] = "Accept: application/vnd.twitchtv.v5+json";
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+}
+curl_close($ch);
+$json = json_decode($result); 
+$data =  $json->users[0]; 
+echo json_encode($data); 
 }
 
 
