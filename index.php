@@ -1,5 +1,5 @@
 <?php
-
+header('Access-Control-Allow-Origin: *');
 # First of all we read the clientid and clientsecret from the config.ini
 # Make sure that the config.ini is protected from unauthorized access
 $ini_array = parse_ini_file("config.ini");
@@ -15,7 +15,7 @@ define('ACCESSTOKEN', getAccessToken());
 # or abort if it's not included
 # So make sure to add your functions to the array if you add new ones
 
-$validFunctions = array("info","topclips","user","latestfollowers");
+$validFunctions = array("info","topclips","user","latestfollowers","followercount");
 $functName = $_REQUEST['f'];
 
 if(in_array($functName,$validFunctions))
@@ -191,5 +191,38 @@ $json = json_decode($result);
 $data =  $json->data; 
 echo json_encode($data);
 return json_encode($data); 
+}
+function followercount()
+{
+$ch = curl_init();
+$channelname = CHANNELNAME;
+$clientid = CLIENTID;
+$accesstoken =ACCESSTOKEN;
+
+$userid=getuserid();
+
+
+curl_setopt($ch, CURLOPT_URL, "https://api.twitch.tv/helix/users/follows?to_id={$userid}&first=1");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+$headers = array();
+$headers[] = "Client-Id: {$clientid}";
+$headers[] = "Authorization: Bearer {$accesstoken}";
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+}
+curl_close($ch);
+ 
+
+$json = json_decode($result); 
+$data =  $json->total; 
+echo $data ;
+return $data; 
 }
 ?>
