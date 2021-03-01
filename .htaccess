@@ -1,3 +1,7 @@
+<IfModule mod_headers.c>
+SetEnvIf Origin "http(s)?://(.+\.)?auhuur\.tv(:\d{1,5})?$" CRS=$0
+Header always set Access-Control-Allow-Origin "%{CRS}e" env=CRS
+</IfModule>
 <files config.ini>
 order allow,deny
 deny from all
