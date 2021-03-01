@@ -22,7 +22,7 @@ define('USER_REFRESHTOKEN', $ini_array['USER_REFRESHTOKEN']);
 # or abort if it's not included
 # So make sure to add your functions to the array if you add new ones
 
-$validFunctions = array("info","topclips","user","latestfollowers","followercount","auth","refreshToken","subscriptions");
+$validFunctions = array("info","topclips","user","latestfollowers","followercount","auth","refreshToken","subscriptions","latestSubscriber", "subscriptionCount");
 $functName = $_REQUEST['f'];
 
 if(in_array($functName,$validFunctions))
@@ -391,6 +391,69 @@ curl_close($ch);
 $json = json_decode($result); 
 echo json_encode($json->data); 
 return json_encode($json->data); 
+}
+function latestSubscriber()
+{
+refreshToken();
+$ch = curl_init();
+$channelname = CHANNELNAME;
+$clientid = CLIENTID;
+$userid=getuserid();
+$USER_ACCESSTOKEN = USER_ACCESSTOKEN;
+
+curl_setopt($ch, CURLOPT_URL, "https://api.twitch.tv/kraken/channels/{$userid}/subscriptions?limit=1&direction=desc");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+$headers = array();
+$headers[] = "Client-Id: {$clientid}";
+$headers[] = "Authorization: OAuth {$USER_ACCESSTOKEN}";
+$headers[] = "Accept: application/vnd.twitchtv.v5+json";
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+}
+curl_close($ch);
+
+$json = json_decode($result); 
+$latestUser =$json->subscriptions[0];
+echo $latestUser->user->display_name; 
+return $latestUser->user->display_name; 
+}
+function subscriptionCount()
+{
+refreshToken();
+$ch = curl_init();
+$channelname = CHANNELNAME;
+$clientid = CLIENTID;
+$userid=getuserid();
+$USER_ACCESSTOKEN = USER_ACCESSTOKEN;
+
+curl_setopt($ch, CURLOPT_URL, "https://api.twitch.tv/kraken/channels/{$userid}/subscriptions?limit=1&direction=desc");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+$headers = array();
+$headers[] = "Client-Id: {$clientid}";
+$headers[] = "Authorization: OAuth {$USER_ACCESSTOKEN}";
+$headers[] = "Accept: application/vnd.twitchtv.v5+json";
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+}
+curl_close($ch);
+
+$json = json_decode($result); 
+echo json_encode($json->_total); 
+return json_encode($json->_total); 
 }
 function config_set($config_file, $key, $value) {
     $config_data = parse_ini_file($config_file, true);
