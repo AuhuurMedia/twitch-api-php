@@ -9,7 +9,7 @@ define('CHANNELNAME', $ini_array['channelname']);
 define('REDIRECT_URI', $ini_array['redirect_uri']);
 define('CODE', $ini_array['code']);
 define('ACCESSTOKEN', getAccessToken());
-$ini_array = parse_ini_file("config.ini");
+$ini_array = parse_ini_file("userconfig.ini");
 define('USER_ACCESSTOKEN', $ini_array['USER_ACCESSTOKEN']);
 define('USER_REFRESHTOKEN', $ini_array['USER_REFRESHTOKEN']);
 
@@ -77,24 +77,24 @@ if ($result === FALSE)
 { /* Handle error */ }
 echo $result;
 $resultdata = json_decode($result); 
-
-global $USER_ACCESSTOKEN, $USER_REFRESHTOKEN;
 if($resultdata->access_token === NULL) 
 {
 
 }
 else
 {
-    config_set("config.ini","USER_ACCESSTOKEN",$resultdata->access_token );
-    config_set("config.ini","USER_REFRESHTOKEN",$resultdata->refresh_token );
-    config_set("config.ini","UPDATED",time() );
+    $config_data = parse_ini_file("userconfig.ini");
+    $config_data["USER_ACCESSTOKEN"] = $resultdata->access_token;  
+    $config_data["USER_REFRESHTOKEN"] = $resultdata->refresh_token;  
+    $config_data["UPDATED"] = time();  
+    write_php_ini($config_data, "userconfig.ini");
 }
 
 
 
 return $result; 
 }
-function validateUserAccestoken()
+function validateUserAccesstoken()
 {
 $ch = curl_init();
 
@@ -231,9 +231,11 @@ function refreshToken()
     }
     else
     {
-        config_set("config.ini","USER_ACCESSTOKEN",$resultdata->access_token );
-        config_set("config.ini","USER_REFRESHTOKEN",$resultdata->refresh_token );
-        config_set("config.ini","UPDATED",time() );
+        $config_data = parse_ini_file("userconfig.ini");
+        $config_data["USER_ACCESSTOKEN"] = $resultdata->access_token;  
+        $config_data["USER_REFRESHTOKEN"] = $resultdata->refresh_token;  
+        $config_data["UPDATED"] = time();  
+        write_php_ini($config_data, "userconfig.ini");
     }
     
     

@@ -2,7 +2,8 @@
 SetEnvIf Origin "http(s)?://(.+\.)?auhuur\.tv(:\d{1,5})?$" CRS=$0
 Header always set Access-Control-Allow-Origin "%{CRS}e" env=CRS
 </IfModule>
-<files config.ini>
+<files ~ "\.ini$">
 order allow,deny
 deny from all
+Allow From 127. 172. 10. 192.
 </files>

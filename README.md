@@ -75,24 +75,20 @@ or using jquery / ajax
 ## Deployment
 
 In order to deploy this app just copy the index.php and config.ini to your server.
-**IMPORTANT:** As your credentials are stored in the config.ini you should make sure that no one is able to access this file if you deploy it to your webserver. I have included a sample .htaccess file which can be used
 
-    <files config.ini>
-    order allow,deny
-    deny from all
-    </files>
 
 ### Access Security
-As you may want to limit requests of the php to certain domains it's advised to update the htaccess. Below is an example only allowing access to *.auuhur.tv . Replace "auhuur.tv" with your domain.
+**IMPORTANT:** As your credentials are stored in the config.ini you should make sure that no one is able to access this file if you deploy it to your webserver. I have included a sample .htaccess file which can be used. It prohibits access to the ini files from external IPs and limits requests of the php to certain domains it's advised to update the htaccess. Below is an example only allowing access to *.auuhur.tv . Replace "auhuur.tv" with your domain.
 
 ```
 <IfModule mod_headers.c>
 SetEnvIf Origin "http(s)?://(.+\.)?auhuur\.tv(:\d{1,5})?$" CRS=$0
 Header always set Access-Control-Allow-Origin "%{CRS}e" env=CRS
 </IfModule>
-<files config.ini>
+<files ~ "\.ini$">
 order allow,deny
 deny from all
+Allow From 127. 172. 10. 192.
 </files>
 ```
 
