@@ -22,13 +22,21 @@ define('USER_REFRESHTOKEN', $ini_array['USER_REFRESHTOKEN']);
 # or abort if it's not included
 # So make sure to add your functions to the array if you add new ones
 
-$validFunctions = array("info","topclips","user","latestfollowers","followercount","auth","refreshToken","subscriptions","latestSubscriber", "subscriptionCount");
+$validFunctions = array("info","channelinfo","topclips","user","latestfollowers","followercount","auth","refreshToken","subscriptions","latestSubscriber", "subscriptionCount");
 $functName = $_REQUEST['f'];
 
 if(in_array($functName,$validFunctions))
 {
-   
- $functName();
+   if($functName == "channelinfo" )
+   {
+    $curchannel = $_REQUEST['channel'];
+    channelinfo($curchannel);
+   }
+   else
+   {
+    $functName();
+   }
+
 }
 else{
     echo "You don't have permission to call that function so back off!";
@@ -156,6 +164,33 @@ function info()
 {
 $ch = curl_init();
 $channelname = CHANNELNAME;
+$clientid = CLIENTID;
+$accesstoken =ACCESSTOKEN;
+
+curl_setopt($ch, CURLOPT_URL, "https://api.twitch.tv/helix/search/channels?query={$channelname}");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+$headers = array();
+$headers[] = "Client-Id: {$clientid}";
+$headers[] = "Authorization: Bearer {$accesstoken}";
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+}
+curl_close($ch);
+$json = json_decode($result); 
+$data =  $json->data[0]; 
+echo json_encode($data); 
+}
+function channelinfo($channelname)
+{
+$ch = curl_init();
+
 $clientid = CLIENTID;
 $accesstoken =ACCESSTOKEN;
 
@@ -403,7 +438,7 @@ $clientid = CLIENTID;
 $userid=getuserid();
 $USER_ACCESSTOKEN = USER_ACCESSTOKEN;
 
-curl_setopt($ch, CURLOPT_URL, "https://api.twitch.tv/kraken/channels/{$userid}/subscriptions?limit=1&direction=desc");
+curl_setopt($ch, CURLOPT_URL, "https://api.twitch.tv/kraken/channels/{$userid}/subscriptions?direction=desc");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -422,9 +457,8 @@ if (curl_errno($ch)) {
 curl_close($ch);
 
 $json = json_decode($result); 
-$latestUser =$json->subscriptions[0];
-echo $latestUser->user->display_name; 
-return $latestUser->user->display_name; 
+echo $result;
+
 }
 function subscriptionCount()
 {
